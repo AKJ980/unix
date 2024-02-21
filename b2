@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h> // Added for read and write functions
+
+#define BUFF_SIZE 1024
+
+int main(int argc, char* argv[]) {
+    int srcFD, destFD, nbread, nbwrite;
+    char buff[BUFF_SIZE]; // Changed from char* to char
+
+    /* Check if both src & dest files are received */
+    if (argc != 3) {
+        fprintf(stderr, "\nUsage: %s source_file destination_file\n", argv[0]); // Changed printf to fprintf and added stderr
+        exit(EXIT_FAILURE);
+    }
+
+    /* Open source file */
+    srcFD = open(argv[1], O_RDONLY);
+
+    if (srcFD == -1) {
+        perror("\nError opening source file"); // Used perror for error message
+        exit(EXIT_FAILURE);
+    }
+
+    /* Open destination file with respective flags & modes */
+    destFD = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+
+    if (destFD == -1) {
+        perror("\nError opening destination file"); // Used perror for error message
+        close(srcFD); // Close source file before exiting
+        exit(EXIT_FAILURE);
+    }
+
+    /* Start data transfer from src file to dest file till it reaches EOF */
+    while ((nbread = read(srcFD, buff, BUFF_SIZE)) > 0) {
+        nbwrite = write(destFD, buff, nbread); // Changed from nbwrite to write
+
+        if (nbwrite != nbread) {
+            perror("\nError in writing data to destination file"); // Used perror for error message
+            close(srcFD);
+            close(destFD);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (nbread == -1) {
+        perror("\nError in reading data from source file"); // Used perror for error message
+        close(srcFD);
+        close(destFD);
+        exit(EXIT_FAILURE);
+    }
+
+    if (close(srcFD) == -1) {
+        perror("\nError in closing source file"); // Used perror for error message
+        exit(EXIT_FAILURE);
+    }
+
+    if (close(destFD) == -1) {
+        perror("\nError in closing destination file"); // Used perror for error message
+        exit(EXIT_FAILURE);
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
+
+output=
+Output: Output: gcc prgm2.c
+[UNIXLAB@localhost ~]$ ./a.out q.txt j.txt
+UNIXLAB@localhost ~]$cat q.txt
+hello
+UNIXLAB@localhost ~]$cat j.txt
+hello
