@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *fp;
+    char ch;
+    int num;
+    long length;
+
+    printf("Enter the value of num: ");
+    scanf("%d", &num);
+
+    fp = fopen("1.txt", "r");
+    if (fp == NULL) {
+        printf("Cannot open this file\n");
+        exit(1);
+    }
+
+    fseek(fp, 0, SEEK_END);
+    length = ftell(fp);
+
+    fseek(fp, (length - num), SEEK_SET);
+
+    printf("Output:\n");
+    while ((ch = fgetc(fp)) != EOF) {
+        putchar(ch);
+    }
+
+    fclose(fp);
+
+    return 0;
+}
+
+cat > l.txt
+hello world hai beautiful girl
+
+gcc p55.c
+[UNIXLAB@localhost ~]$ ./a.out 
+Enter the value of num:4
+Girl
